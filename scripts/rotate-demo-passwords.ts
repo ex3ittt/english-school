@@ -4,8 +4,9 @@ import { writeFile } from "node:fs/promises";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { generateTempPassword, hashPassword } from "../src/lib/auth/password";
+import { directDatabaseUrl, pgConfig } from "../src/lib/db-url";
 
-const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
+const db = new PrismaClient({ adapter: new PrismaPg(pgConfig(directDatabaseUrl())) });
 const lines: string[] = [];
 for (const user of await db.user.findMany({ orderBy: { role: "asc" } })) {
   const password = generateTempPassword(12);

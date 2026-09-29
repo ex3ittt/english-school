@@ -12,3 +12,5 @@ next-env.d.ts
 .demo-accounts.txt
 .share.log
 .share-url
+.vercel
+.env*

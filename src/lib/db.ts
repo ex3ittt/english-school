@@ -1,6 +1,7 @@
 import "server-only";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Prisma, PrismaClient } from "@/generated/prisma/client";
+import { databaseUrl, pgConfig } from "@/lib/db-url";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient; prismaModels?: string };
 
@@ -9,11 +10,10 @@ const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient; prisma
 const models = JSON.stringify(Object.keys(Prisma.ModelName));
 
 function createClient() {
-  const adapter = new PrismaPg({
-    connectionString: process.env.DATABASE_URL,
+  const adapter = new PrismaPg(
     // Serverless (Vercel): держим пул маленьким, соединения раздаёт pgbouncer Supabase.
-    max: Number(process.env.DATABASE_POOL_MAX ?? 5),
-  });
+    pgConfig(databaseUrl(), { max: Number(process.env.DATABASE_POOL_MAX ?? 5) }),
+  );
   return new PrismaClient({ adapter });
 }
 

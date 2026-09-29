@@ -8,13 +8,17 @@ import path from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { hashPassword } from "../src/lib/auth/password";
+import { directDatabaseUrl, pgConfig } from "../src/lib/db-url";
 import { createLocalDriver } from "../src/lib/storage/local";
 import { createS3Driver } from "../src/lib/storage/s3";
+import { createSupabaseDriver, supabaseConfigFromEnv } from "../src/lib/storage/supabase";
 
-const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DIRECT_URL || process.env.DATABASE_URL }) });
+const db = new PrismaClient({ adapter: new PrismaPg(pgConfig(directDatabaseUrl())) });
 
 const storage =
-  process.env.STORAGE_DRIVER === "s3"
+  process.env.STORAGE_DRIVER === "supabase"
+    ? createSupabaseDriver(supabaseConfigFromEnv())
+    : process.env.STORAGE_DRIVER === "s3"
     ? createS3Driver({
         endpoint: process.env.S3_ENDPOINT,
         region: process.env.S3_REGION || "auto",

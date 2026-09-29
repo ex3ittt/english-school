@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
+import { directDatabaseUrl } from "./src/lib/db-url";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -9,6 +10,6 @@ export default defineConfig({
   },
   datasource: {
     // Для миграций нужен прямой (не pooled) адрес. На Supabase это порт 5432.
-    url: process.env.DIRECT_URL || process.env.DATABASE_URL || "",
+    url: directDatabaseUrl(),
   },
 });

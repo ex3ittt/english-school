@@ -31,7 +31,7 @@ for (const signal of ["SIGINT", "SIGTERM"]) process.on(signal, () => shutdown(0)
 
 let url;
 try {
-  url = new URL(process.env.DATABASE_URL ?? "");
+  url = new URL(process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL || "");
 } catch {
   url = null;
 }

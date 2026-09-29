@@ -1,0 +1,80 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  transition: opacity 0.15s var(--ease);
+}
+
+.saving {
+  opacity: 0.75;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px;
+  padding: 10px 10px 10px 6px;
+  border: 1px solid var(--paper-edge);
+  border-radius: var(--radius-s);
+  background: rgba(255, 250, 242, 0.6);
+  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease), opacity 0.15s var(--ease);
+}
+
+.dragging {
+  opacity: 0.4;
+}
+
+.over {
+  border-color: var(--red);
+  box-shadow: 0 -3px 0 var(--red);
+}
+
+.handle {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  color: var(--ink-3);
+  cursor: grab;
+  border-radius: var(--radius-s);
+}
+
+.handle:hover {
+  color: var(--ink);
+  background: rgba(35, 26, 19, 0.06);
+}
+
+.handle:active {
+  cursor: grabbing;
+}
+
+.body {
+  min-width: 0;
+}
+
+.arrows {
+  display: flex;
+  gap: 2px;
+}
+
+.arrows button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--ink-3);
+  font-size: 0.95rem;
+}
+
+.arrows button:hover:not(:disabled) {
+  border-color: var(--paper-edge);
+  color: var(--ink);
+}
+
+.arrows button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}

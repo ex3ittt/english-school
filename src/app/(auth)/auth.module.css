@@ -1,0 +1,232 @@
+.page {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.9fr);
+}
+
+.side {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(28px, 5vw, 64px);
+  border-right: 1px solid var(--wood-line);
+  overflow: hidden;
+}
+
+/* Крупные коды уровней как фактурный элемент. Занимают только свободное место
+   между текстом и нижней строкой: если места нет, блок схлопывается и не мешает тексту. */
+.deco {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  margin: 24px 0 18px -0.06em;
+  container-type: size;
+}
+
+.deco span {
+  font-family: var(--font-display);
+  font-weight: 700;
+  /* Не выше свободного места: буквы уменьшаются вместе с ним */
+  font-size: min(10vw, 180px, 100cqh);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(236, 222, 199, 0.09);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Совсем мало места — не показываем обрезки */
+@container (max-height: 70px) {
+  .deco span {
+    display: none;
+  }
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: var(--red);
+  color: #fff4ea;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brandName {
+  display: grid;
+  line-height: 1.15;
+}
+
+.brandName strong {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.brandName span {
+  font-size: 0.8rem;
+  color: var(--on-wood-2);
+}
+
+.intro {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  margin: 12vh 0 0;
+}
+
+.kicker {
+  display: inline-block;
+  margin-bottom: 18px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.title {
+  font-size: clamp(2rem, 4.2vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+.lead {
+  margin-top: 22px;
+  max-width: 40ch;
+  color: var(--on-wood-2);
+  font-size: 1.02rem;
+}
+
+.foot {
+  position: relative;
+  z-index: 1;
+  font-size: 0.85rem;
+  color: var(--on-wood-3);
+}
+
+.foot a {
+  color: var(--on-wood-2);
+}
+
+.formWrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: clamp(24px, 4vw, 56px);
+}
+
+.sheet {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 44px 36px 36px;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 30px 60px -30px rgba(0, 0, 0, 0.7),
+    0 2px 0 var(--paper-edge);
+}
+
+/* Закладка над листом — как в папке с уроками. */
+.tab {
+  position: absolute;
+  top: -30px;
+  left: 28px;
+  height: 30px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #fff4ea;
+  background: var(--red);
+  border-radius: 3px 3px 0 0;
+}
+
+.sheetTitle {
+  font-size: 1.45rem;
+  margin-bottom: 6px;
+}
+
+.sheetLead {
+  color: var(--ink-3);
+  font-size: 0.93rem;
+  margin-bottom: 26px;
+}
+
+.form {
+  display: grid;
+  gap: 18px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.small {
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+@media (max-width: 860px) {
+  .page {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    border-right: 0;
+    padding-bottom: 12px;
+    min-height: auto;
+  }
+
+  .deco {
+    display: none;
+  }
+
+  .intro {
+    margin: 36px 0 8px;
+  }
+
+  .lead {
+    display: none;
+  }
+
+  .foot {
+    display: none;
+  }
+
+  .formWrap {
+    align-items: flex-start;
+    padding: 44px 16px 40px;
+  }
+
+  .sheet {
+    max-width: none;
+    padding: 36px 20px 26px;
+  }
+
+  .tab {
+    left: 20px;
+  }
+}

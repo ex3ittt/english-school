@@ -1,0 +1,100 @@
+.box {
+  display: grid;
+  gap: 10px;
+}
+
+.drop {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1.5px dashed var(--ink-3);
+  border-radius: var(--radius-s);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: border-color 0.15s var(--ease), background-color 0.15s var(--ease);
+}
+
+.drop:hover,
+.drop:focus-within {
+  border-color: var(--red);
+  background: var(--red-soft);
+}
+
+.drop small {
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.dropBusy {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.compact .drop {
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.status {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  background: rgba(255, 250, 242, 0.7);
+  border: 1px solid var(--paper-edge);
+}
+
+.preview {
+  width: 96px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #120d0a;
+}
+
+.meta {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  grid-column: 2;
+}
+
+.status > :first-child:not(.preview) {
+  grid-column: 1 / 3;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.size {
+  font-size: 0.8rem;
+  color: var(--ink-3);
+}
+
+.track {
+  position: relative;
+  height: 6px;
+  background: var(--paper-3);
+  overflow: hidden;
+}
+
+.track span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--red);
+  transition: width 0.2s linear;
+}
+
+.error {
+  color: var(--red);
+  font-size: 0.85rem;
+}

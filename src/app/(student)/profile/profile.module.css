@@ -1,0 +1,82 @@
+.page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 52px) clamp(16px, 3.2vw, 44px) 80px;
+}
+
+.head {
+  margin-bottom: 30px;
+}
+
+.kicker {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 10px;
+}
+
+.title {
+  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.email {
+  margin-top: 6px;
+  color: var(--on-wood-2);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(18px, 3vw, 32px);
+  align-items: stretch;
+}
+
+.card {
+  padding: clamp(22px, 3vw, 34px);
+  border-radius: 3px;
+  box-shadow: 0 30px 50px -34px rgba(0, 0, 0, 0.95), 0 2px 0 var(--paper-edge);
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.readonly {
+  display: grid;
+  gap: 4px;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--paper-edge);
+}
+
+.readonly p:not([class]) {
+  font-weight: 600;
+}
+
+.logout {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 22px;
+  border-top: 1px solid var(--wood-line);
+  color: var(--on-wood-2);
+}
+
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

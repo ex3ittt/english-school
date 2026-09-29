@@ -1,0 +1,147 @@
+/* ==========================================================================
+   Тема: тёмное дерево + бумага + один красный акцент.
+   ========================================================================== */
+
+:root {
+  /* Дерево (фон) */
+  --wood-900: #16110d;
+  --wood-800: #1e1813;
+  --wood-700: #2a211a;
+  --wood-600: #3a2e24;
+  --wood-line: rgba(236, 222, 199, 0.1);
+  --wood-line-strong: rgba(236, 222, 199, 0.2);
+
+  /* Бумага (вкладки, листы) */
+  --paper: #f2e9d8;
+  --paper-2: #e8dcc6;
+  --paper-3: #d9caae;
+  --paper-edge: #c9b797;
+
+  /* Текст */
+  --ink: #231a13;
+  --ink-2: #4e4135;
+  --ink-3: #7c6c5c;
+  --on-wood: #eee3cf;
+  --on-wood-2: #b5a58f;
+  --on-wood-3: #86776a;
+
+  /* Единственный акцент */
+  --red: #c4362c;
+  --red-hover: #a92a21;
+  --red-soft: rgba(196, 54, 44, 0.12);
+
+  /* Служебные */
+  --danger-bg: #f7d9d2;
+  --ok-bg: #e4e1c6;
+  --focus: 0 0 0 3px rgba(196, 54, 44, 0.35);
+
+  --font-display: var(--font-unbounded), "Arial Black", sans-serif;
+  --font-body: var(--font-golos), "PT Sans", "Helvetica Neue", Arial, sans-serif;
+
+  --radius-s: 3px;
+  --radius-m: 6px;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Фактуры. Волокна дерева: сильно вытянутый по горизонтали шум. */
+  --tex-wood: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='600'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0035 0.11' numOctaves='4' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.93 0 0 0 0 0.84 0 0 0 0 0.7 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --tex-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --tex-paper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.35 0 0 0 0 0.22 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--on-wood);
+  background-color: var(--wood-800);
+  background-image: var(--tex-grain), var(--tex-wood),
+    radial-gradient(120% 80% at 20% 0%, #2c2219 0%, var(--wood-800) 55%, var(--wood-900) 100%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+
+::selection {
+  background: var(--red);
+  color: #fff;
+}
+
+img,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Лист бумаги — светлая поверхность с фактурой. */
+.paper {
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image: var(--tex-paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

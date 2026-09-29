@@ -1,0 +1,134 @@
+.teacherRow {
+  display: grid;
+  gap: 12px;
+  padding: 16px 0;
+  border-top: 1px solid var(--paper-3);
+}
+
+.teacherRow:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.teacherHead {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--wood-700);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.teacherInfo {
+  display: grid;
+  min-width: 0;
+}
+
+.teacherInfo span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.poster {
+  width: 96px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 2px;
+  background: #120d0a;
+}
+
+.rowActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview {
+  max-width: 560px;
+}
+
+.linkForm {
+  display: grid;
+  gap: 8px;
+}
+
+.linkRow {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.linkRow .input,
+.linkRow select,
+.linkRow input {
+  min-height: 38px;
+}
+
+.block {
+  display: grid;
+  gap: 12px;
+}
+
+.blockForm {
+  display: grid;
+  gap: 10px;
+}
+
+.blockHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.blockType {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 2px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.blockTitle {
+  min-height: 38px;
+  font-weight: 600;
+}
+
+.media {
+  display: grid;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--paper-edge);
+}
+
+@media (max-width: 640px) {
+  .linkRow {
+    grid-template-columns: 1fr;
+  }
+
+  .teacherHead {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .poster {
+    display: none;
+  }
+}

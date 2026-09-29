@@ -1,0 +1,338 @@
+.shell {
+  display: grid;
+  grid-template-columns: 292px minmax(0, 1fr);
+  gap: clamp(24px, 3vw, 48px);
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px clamp(16px, 3.2vw, 44px) 80px;
+}
+
+.content {
+  min-width: 0;
+}
+
+/* --- Боковое меню ------------------------------------------------------- */
+
+.aside {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 40px);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  font-size: 0.85rem;
+  color: var(--on-wood-3);
+  text-decoration: none;
+  transition: color 0.15s var(--ease);
+}
+
+.back:hover {
+  color: var(--on-wood);
+}
+
+.courseHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 20px;
+}
+
+.courseCode {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1.5px solid var(--red);
+  color: var(--red);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+}
+
+.courseName {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.25;
+}
+
+.navWrap {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.navToggle {
+  display: none;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--wood-600) transparent;
+  padding-right: 4px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-s);
+  color: var(--on-wood-2);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.navItem:hover {
+  background: rgba(236, 222, 199, 0.06);
+  color: var(--on-wood);
+}
+
+.navDivider {
+  margin: 18px 12px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--on-wood-3);
+}
+
+.weekList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.week {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-s);
+  color: var(--on-wood);
+  text-decoration: none;
+  transition: background-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+a.week:hover {
+  background: rgba(236, 222, 199, 0.06);
+}
+
+.weekNum {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--on-wood-3);
+  transition: color 0.15s var(--ease);
+}
+
+.weekText {
+  display: grid;
+  min-width: 0;
+}
+
+.weekLabel {
+  font-weight: 600;
+  font-size: 0.93rem;
+}
+
+.weekTitle {
+  font-size: 0.78rem;
+  color: var(--on-wood-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.weekState {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.weekDone .weekState {
+  background: var(--red);
+  color: #fff4ea;
+}
+
+.weekDone .weekNum {
+  color: var(--red);
+}
+
+.weekLocked {
+  cursor: not-allowed;
+  color: var(--on-wood-3);
+}
+
+.weekLocked .weekNum,
+.weekLocked .weekTitle {
+  color: #6d6055;
+}
+
+.weekLocked .weekState {
+  color: #6d6055;
+}
+
+.active,
+.active:hover {
+  background: var(--paper);
+  background-image: var(--tex-paper);
+  color: var(--ink);
+  box-shadow: inset 3px 0 0 var(--red);
+}
+
+.active .weekNum {
+  color: var(--red);
+}
+
+.active .weekTitle {
+  color: var(--ink-3);
+}
+
+.curator {
+  flex: none;
+  display: grid;
+  gap: 4px;
+  margin-top: 22px;
+  padding: 16px 18px 18px;
+  border-radius: 2px;
+  box-shadow: 0 16px 30px -18px rgba(0, 0, 0, 0.9);
+  transform: rotate(-0.6deg);
+}
+
+.curatorKicker {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.curatorName {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.curatorTime {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+
+/* --- Мобильная версия меню -------------------------------------------- */
+
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding-top: 16px;
+  }
+
+  .aside {
+    position: relative;
+    top: 0;
+    max-height: none;
+    z-index: 4;
+  }
+
+  .courseHead {
+    margin: 12px 0 14px;
+  }
+
+  .navWrap {
+    position: relative;
+  }
+
+  .navToggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 54px;
+    padding: 8px 14px;
+    border: 1px solid var(--wood-line-strong);
+    border-radius: var(--radius-s);
+    background: rgba(22, 17, 13, 0.5);
+    text-align: left;
+    font-weight: 600;
+  }
+
+  .navToggle small {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--on-wood-3);
+  }
+
+  .navToggle svg {
+    transition: transform 0.2s var(--ease);
+  }
+
+  .chevUp {
+    transform: rotate(180deg);
+  }
+
+  .nav {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    max-height: 64dvh;
+    padding: 8px;
+    border: 1px solid var(--wood-line-strong);
+    border-radius: var(--radius-m);
+    background-color: var(--wood-800);
+    background-image: var(--tex-grain);
+    box-shadow: 0 24px 40px -10px rgba(0, 0, 0, 0.8);
+  }
+
+  .navOpen {
+    display: flex;
+  }
+
+  .curator {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 12px;
+    margin-top: 12px;
+    padding: 12px 14px;
+    transform: none;
+  }
+
+  .curatorKicker {
+    width: 100%;
+  }
+
+  .curatorName {
+    font-size: 0.92rem;
+  }
+}

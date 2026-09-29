@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum BlockType {
+  VIDEO
+  TEXT
+  FILE
+}
+
+/// Откуда играет видео: загруженный файл в хранилище или внешний плеер.
+enum VideoProvider {
+  UPLOAD
+  VIMEO
+  KINESCOPE
+}
+
+/// Ручное решение админа по неделе для конкретного ученика.
+enum WeekAccessMode {
+  OPEN
+  CLOSED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String    @map("password_hash")
+  role         Role      @default(STUDENT)
+  isBlocked    Boolean   @default(false) @map("is_blocked")
+  lastSeenAt   DateTime? @map("last_seen_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  sessions    Session[]
+  resetTokens PasswordResetToken[]
+  enrollments Enrollment[]
+  progress    Progress[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique @map("token_hash")
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  userAgent String?  @map("user_agent")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique @map("token_hash")
+  userId    String    @map("user_id")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  /// Название уровня, например «Pre-Intermediate».
+  level       String   @default("")
+  /// Короткий код уровня для обложки, например «A2».
+  levelCode   String   @default("") @map("level_code")
+  description String   @default("")
+  coverKey    String?  @map("cover_key")
+  /// Основной курс показывается на полке крупно слева.
+  isMain      Boolean  @default(false) @map("is_main")
+  isPublished Boolean  @default(true) @map("is_published")
+  sortOrder   Int      @default(0) @map("sort_order")
+  /// Каждая следующая неделя открывается через 7 дней после предыдущей.
+  autoUnlock  Boolean  @default(false) @map("auto_unlock")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  weeks       Week[]
+  enrollments Enrollment[]
+
+  @@map("courses")
+}
+
+model Enrollment {
+  id                 String   @id @default(cuid())
+  userId             String   @map("user_id")
+  courseId           String   @map("course_id")
+  /// С этой даты открыта первая неделя; от неё считается автооткрытие.
+  startedAt          DateTime @default(now()) @map("started_at")
+  curatorName        String   @default("") @map("curator_name")
+  /// Свободный текст: «Вт и Чт, 19:00 (МСК)».
+  curatorSchedule    String   @default("") @map("curator_schedule")
+  preferredTeacherId String?  @map("preferred_teacher_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course           Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  preferredTeacher Teacher?     @relation(fields: [preferredTeacherId], references: [id], onDelete: SetNull)
+  weekAccess       WeekAccess[]
+
+  @@unique([userId, courseId])
+  @@index([courseId])
+  @@map("enrollments")
+}
+
+model WeekAccess {
+  id           String         @id @default(cuid())
+  enrollmentId String         @map("enrollment_id")
+  weekId       String         @map("week_id")
+  mode         WeekAccessMode
+  changedAt    DateTime       @default(now()) @map("changed_at")
+
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  week       Week       @relation(fields: [weekId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, weekId])
+  @@map("week_access")
+}
+
+model Week {
+  id       String @id @default(cuid())
+  courseId String @map("course_id")
+  number   Int
+  title    String @default("")
+
+  course Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  days   Day[]
+  access WeekAccess[]
+
+  @@unique([courseId, number])
+  @@map("weeks")
+}
+
+model Day {
+  id        String @id @default(cuid())
+  weekId    String @map("week_id")
+  /// 1 = понедельник … 7 = воскресенье
+  dayOfWeek Int    @map("day_of_week")
+  title     String @default("")
+
+  week    Week     @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@unique([weekId, dayOfWeek])
+  @@map("days")
+}
+
+model Lesson {
+  id        String   @id @default(cuid())
+  dayId     String   @map("day_id")
+  title     String
+  summary   String   @default("")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  day      Day           @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  videos   LessonVideo[]
+  blocks   LessonBlock[]
+  progress Progress[]
+
+  @@index([dayId])
+  @@map("lessons")
+}
+
+model LessonBlock {
+  id            String         @id @default(cuid())
+  lessonId      String         @map("lesson_id")
+  type          BlockType
+  title         String         @default("")
+  sortOrder     Int            @default(0) @map("sort_order")
+  text          String?
+  videoProvider VideoProvider? @map("video_provider")
+  videoKey      String?        @map("video_key")
+  videoUrl      String?        @map("video_url")
+  posterKey     String?        @map("poster_key")
+  fileKey       String?        @map("file_key")
+  fileName      String?        @map("file_name")
+  fileSize      Int?           @map("file_size")
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@map("lesson_blocks")
+}
+
+model Teacher {
+  id        String   @id @default(cuid())
+  name      String
+  photoKey  String?  @map("photo_key")
+  bio       String   @default("")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  videos      LessonVideo[]
+  preferredBy Enrollment[]
+
+  @@map("teachers")
+}
+
+/// Видеоверсия урока от конкретного преподавателя.
+model LessonVideo {
+  id          String        @id @default(cuid())
+  lessonId    String        @map("lesson_id")
+  teacherId   String        @map("teacher_id")
+  provider    VideoProvider
+  videoKey    String?       @map("video_key")
+  videoUrl    String?       @map("video_url")
+  posterKey   String?       @map("poster_key")
+  durationSec Int?          @map("duration_sec")
+
+  lesson  Lesson  @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([lessonId, teacherId])
+  @@map("lesson_videos")
+}
+
+model Progress {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  lessonId    String   @map("lesson_id")
+  completedAt DateTime @default(now()) @map("completed_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([lessonId])
+  @@map("progress")
+}

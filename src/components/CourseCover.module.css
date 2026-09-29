@@ -1,0 +1,121 @@
+.cover {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 2px 5px 5px 2px;
+  box-shadow: -1px 0 0 rgba(0, 0, 0, 0.35), 0 18px 28px -18px rgba(0, 0, 0, 0.9);
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), filter 0.25s var(--ease);
+}
+
+/* Корешок книги */
+.cover::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 9px;
+  z-index: 1;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.05) 70%, rgba(255, 255, 255, 0.12));
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.type {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 14% 10% 12% 15%;
+  container-type: inline-size;
+  background-image: var(--tex-paper);
+}
+
+.code {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 30cqi, 3.2rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+
+.level {
+  margin-top: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.title {
+  margin-top: auto;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(0.72rem, 1.05vw, 0.95rem);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Четыре спокойных варианта обложек, без радуги */
+.v0 .type {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+.v0 .code {
+  color: var(--red);
+}
+
+.v1 .type {
+  background-color: #3b2f25;
+  color: var(--paper);
+  border-top: 10px solid var(--red);
+}
+
+.v2 .type {
+  background-color: #d9c9a8;
+  color: var(--ink);
+}
+
+.v2 .type::after {
+  content: "";
+  position: absolute;
+  left: 16%;
+  right: 12%;
+  bottom: 38%;
+  height: 2px;
+  background: var(--ink);
+  opacity: 0.6;
+}
+
+.v3 .type {
+  background-color: #efe4cf;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 10px #efe4cf, inset 0 0 0 11px rgba(35, 26, 19, 0.35);
+}
+
+.locked {
+  filter: grayscale(0.85) brightness(0.62);
+}
+
+.lock {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(22, 17, 13, 0.85);
+  color: var(--on-wood);
+}

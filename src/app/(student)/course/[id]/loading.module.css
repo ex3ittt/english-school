@@ -1,0 +1,33 @@
+.wrap {
+  display: grid;
+  gap: 14px;
+  padding-top: 6px;
+}
+
+.line,
+.title {
+  display: block;
+  height: 12px;
+  background: var(--wood-600);
+  animation: fade 1.2s ease-in-out infinite;
+}
+
+.title {
+  width: 55%;
+  height: 34px;
+  margin-bottom: 20px;
+}
+
+.sheet {
+  display: block;
+  height: 420px;
+  border-radius: 4px;
+  opacity: 0.35;
+  animation: fade 1.2s ease-in-out infinite;
+}
+
+@keyframes fade {
+  50% {
+    opacity: 0.18;
+  }
+}

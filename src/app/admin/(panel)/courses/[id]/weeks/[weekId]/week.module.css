@@ -1,0 +1,39 @@
+.days {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.days > .day {
+  margin-top: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.dayHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.dayTitle,
+.add {
+  display: flex;
+  gap: 8px;
+}
+
+.dayTitle input,
+.add input {
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: 0.9rem;
+}
+
+.add {
+  padding-top: 10px;
+  border-top: 1px dashed var(--paper-edge);
+}

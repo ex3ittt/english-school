@@ -1,0 +1,132 @@
+.bar {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  height: 68px;
+  padding: 0 clamp(16px, 3.2vw, 44px);
+  border-bottom: 1px solid var(--wood-line);
+  background: linear-gradient(to bottom, rgba(22, 17, 13, 0.65), rgba(22, 17, 13, 0.25));
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: var(--red);
+  color: #fff4ea;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2.4vw, 28px);
+}
+
+.link {
+  position: relative;
+  padding: 6px 0;
+  font-size: 0.93rem;
+  font-weight: 500;
+  color: var(--on-wood-2);
+  text-decoration: none;
+  transition: color 0.15s var(--ease);
+}
+
+.link:hover {
+  color: var(--on-wood);
+}
+
+.link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 0;
+  height: 2px;
+  background: var(--red);
+  transition: right 0.2s var(--ease);
+}
+
+.link:hover::after {
+  right: 0;
+}
+
+.me {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid var(--wood-line-strong);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: border-color 0.15s var(--ease), background-color 0.15s var(--ease);
+}
+
+.me:hover {
+  border-color: var(--on-wood-2);
+  background: rgba(236, 222, 199, 0.05);
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.meName {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .bar {
+    height: 58px;
+  }
+
+  .name {
+    font-size: 0.85rem;
+  }
+
+  .link:first-child {
+    display: none;
+  }
+
+  .meName {
+    display: none;
+  }
+
+  .me {
+    padding: 3px;
+  }
+}

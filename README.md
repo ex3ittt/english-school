@@ -72,6 +72,25 @@ npm run dev
 
 Без SMTP письма восстановления пароля печатаются в консоль `npm run dev` — ссылку можно скопировать оттуда.
 
+## Временная публичная ссылка (показать сайт другим)
+
+Нужен [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) (`brew install cloudflared`), аккаунт Cloudflare не нужен.
+
+```bash
+npm run share
+```
+
+Команда соберёт сайт, поднимет туннель и напечатает ссылку вида `https://….trycloudflare.com`.
+Сайт открыт, пока работает команда и включён компьютер; при каждом запуске ссылка новая.
+
+Перед тем как делиться ссылкой, смените тестовые пароли из этого README — они публичные:
+
+```bash
+npx tsx scripts/rotate-demo-passwords.ts
+```
+
+Новые пароли запишутся в `.demo-accounts.txt` (в git не попадает). Также задайте свой `APP_SECRET` в `.env`.
+
 ## Переменные окружения
 
 | Переменная | Что это |

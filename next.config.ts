@@ -34,7 +34,11 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   serverExternalPackages: ["pg", "nodemailer"],
   experimental: {
-    serverActions: { bodySizeLimit: "2mb" },
+    serverActions: {
+      bodySizeLimit: "2mb",
+      // Временная публичная ссылка через Cloudflare Tunnel (npm run share).
+      allowedOrigins: ["*.trycloudflare.com"],
+    },
   },
   async headers() {
     return [

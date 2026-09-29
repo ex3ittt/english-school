@@ -4,6 +4,7 @@
 import "dotenv/config";
 import { spawn } from "node:child_process";
 import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
+import { lookup } from "node:dns/promises";
 import net from "node:net";
 
 const PORT = 3100;
@@ -36,7 +37,13 @@ let site = null;
 let stopping = false;
 
 function stopChild(child) {
-  if (child && child.exitCode === null) child.kill("SIGTERM");
+  if (!child || child.exitCode !== null) return;
+  try {
+    // next start запускает дочерний next-server: гасим всю группу процессов, чтобы порт освободился.
+    process.kill(-child.pid, "SIGTERM");
+  } catch {
+    child.kill("SIGTERM");
+  }
 }
 
 function shutdown(code = 0) {
@@ -52,11 +59,31 @@ if (!(await portOpen(5433)) && /(127\.0\.0\.1|localhost):5433/.test(process.env.
   for (let i = 0; i < 100 && !(await portOpen(5433)); i++) await sleep(100);
 }
 
+/**
+ * Адреса серверов Cloudflare узнаём через системный DNS macOS и передаём cloudflared готовыми.
+ * Сам cloudflared читает /etc/resolv.conf, который на раздаче с iPhone бывает пустым —
+ * тогда он теряет связь и ссылка отдаёт Error 1033.
+ */
+async function edgeAddresses() {
+  const out = [];
+  for (const host of ["region1.v2.argotunnel.com", "region2.v2.argotunnel.com"]) {
+    try {
+      const found = await lookup(host, { all: true, family: 4 });
+      out.push(...found.slice(0, 4).map((a) => `${a.address}:7844`));
+    } catch {}
+  }
+  return out;
+}
+
 /** Поднимает туннель и ждёт, пока Cloudflare подтвердит соединение. */
-function startTunnel() {
+async function startTunnel() {
+  const edges = await edgeAddresses();
+  const args = ["tunnel", "--no-autoupdate", "--protocol", "http2", ...edges.flatMap((e) => ["--edge", e]), "--url", `http://localhost:${PORT}`];
   return new Promise((resolve, reject) => {
-    const child = spawn("cloudflared", ["tunnel", "--no-autoupdate", "--protocol", "http2", "--url", `http://localhost:${PORT}`], {
+    const child = spawn("cloudflared", args, {
       stdio: ["ignore", "pipe", "pipe"],
+      // Запрос новой ссылки — тоже через системный DNS.
+      env: { ...process.env, GODEBUG: "netdns=cgo" },
     });
     let url = null;
     const timer = setTimeout(() => reject(new Error("Cloudflare не выдал ссылку за 60 секунд")), 60_000);
@@ -68,7 +95,9 @@ function startTunnel() {
       if (match && !url) url = match[0];
       if (/failed to (request|unmarshal) quick Tunnel|429 Too Many Requests/i.test(text)) {
         clearTimeout(timer);
-        reject(new Error("Cloudflare отказал в новом туннеле (так бывает при частых перезапусках). Подождите минуту и запустите снова."));
+        const err = new Error("Cloudflare временно отказал в новой ссылке (лимит на частые перезапуски).");
+        err.rateLimited = true;
+        reject(err);
       }
       if (url && /Registered tunnel connection/.test(text)) {
         clearTimeout(timer);
@@ -100,18 +129,20 @@ async function start() {
   const url = t.url;
   // cloudflared упал совсем — сразу поднимаем заново, не дожидаясь сторожа.
   tunnel.on("exit", () => {
-    if (!stopping && tunnel === t.child) void restart("cloudflared остановился.").then((u) => (current = u));
+    if (!stopping && !restarting && tunnel === t.child) void restart("cloudflared остановился.").then((u) => (current = u));
   });
 
   // Сайт должен знать свой публичный адрес: из него строятся ссылки на видео и в письмах.
   site = spawn("next", ["start", "-p", String(PORT)], {
+    detached: true,
     stdio: ["ignore", "pipe", "pipe"],
     env: { ...process.env, APP_URL: url, NODE_ENV: "production" },
   });
   site.stdout.on("data", (c) => appendFileSync(LOG, String(c)));
   site.stderr.on("data", (c) => appendFileSync(LOG, String(c)));
+  const thisSite = site;
   site.on("exit", (code) => {
-    if (!stopping) {
+    if (!stopping && !restarting && site === thisSite) {
       console.error(`Сервер сайта остановился (код ${code}). Подробности в ${LOG}`);
       shutdown(1);
     }
@@ -131,22 +162,27 @@ async function start() {
   return url;
 }
 
+let restarting = false;
+
 async function restart(reason) {
+  if (restarting) return current;
+  restarting = true;
   console.log(`\n${reason} Поднимаю новую ссылку…`);
-  stopping = true;
-  stopChild(tunnel);
-  stopChild(site);
-  await sleep(1500);
-  stopping = false;
-  for (let attempt = 1; ; attempt++) {
-    try {
-      return await start();
-    } catch (error) {
-      console.error(`Не получилось (${error.message}). Пробую ещё раз через ${attempt * 15} с…`);
+  try {
+    for (let attempt = 1; ; attempt++) {
       stopChild(tunnel);
       stopChild(site);
-      await sleep(attempt * 15_000);
+      await sleep(1500);
+      try {
+        return await start();
+      } catch (error) {
+        const wait = error.rateLimited ? 90 : Math.min(attempt * 15, 60);
+        console.error(`Не получилось: ${error.message} Пробую ещё раз через ${wait} с…`);
+        await sleep(wait * 1000);
+      }
     }
+  } finally {
+    restarting = false;
   }
 }
 
@@ -158,17 +194,17 @@ try {
   shutdown(1);
 }
 
-// Сторож: раз в минуту проверяем ссылку снаружи. Три провала подряд — туннель умер, поднимаем новый.
+// Сторож: раз в минуту проверяем ссылку снаружи. Два провала подряд — туннель умер, поднимаем новый.
 let failures = 0;
 setInterval(async () => {
-  if (stopping) return;
+  if (stopping || restarting) return;
   if (await publicOk(current)) {
     failures = 0;
     return;
   }
   failures++;
   log(`CHECK FAILED ${failures} ${current}`);
-  if (failures >= 3) {
+  if (failures >= 2) {
     failures = 0;
     current = await restart("Туннель Cloudflare оборвался (так бывает с бесплатными ссылками).");
   }

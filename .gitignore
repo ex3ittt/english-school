@@ -10,3 +10,5 @@ next-env.d.ts
 .claude
 .DS_Store
 .demo-accounts.txt
+.share.log
+.share-url

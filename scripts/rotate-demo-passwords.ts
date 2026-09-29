@@ -14,6 +14,6 @@ for (const user of await db.user.findMany({ orderBy: { role: "asc" } })) {
   await db.session.deleteMany({ where: { userId: user.id } });
   lines.push(`${user.role === "ADMIN" ? "Админ " : "Ученик"}  ${user.email}  ${password}`);
 }
-await writeFile(".demo-accounts.txt", `Доступы к демо-сайту (файл не попадает в git)\n\n${lines.join("\n")}\n`);
-console.log(`Пароли обновлены для ${lines.length} аккаунтов, записаны в .demo-accounts.txt`);
+await writeFile(process.env.DEMO_ACCOUNTS_FILE ?? ".demo-accounts.txt", `Доступы к демо-сайту (файл не попадает в git)\n\n${lines.join("\n")}\n`);
+console.log(`Пароли обновлены для ${lines.length} аккаунтов, записаны в ${process.env.DEMO_ACCOUNTS_FILE ?? ".demo-accounts.txt"}`);
 await db.$disconnect();

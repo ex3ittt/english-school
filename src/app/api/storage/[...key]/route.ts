@@ -31,7 +31,7 @@ function denied(message = "Ссылка недействительна или у
 }
 
 export async function GET(request: Request, { params }: Ctx) {
-  if (process.env.STORAGE_DRIVER === "s3") return new Response(null, { status: 404 });
+  if ((process.env.STORAGE_DRIVER ?? "local") !== "local") return new Response(null, { status: 404 });
   const key = (await params).key.map(decodeURIComponent).join("/");
   const url = new URL(request.url);
   const exp = Number(url.searchParams.get("exp"));
@@ -75,7 +75,7 @@ export async function GET(request: Request, { params }: Ctx) {
 }
 
 export async function PUT(request: Request, { params }: Ctx) {
-  if (process.env.STORAGE_DRIVER === "s3") return new Response(null, { status: 404 });
+  if ((process.env.STORAGE_DRIVER ?? "local") !== "local") return new Response(null, { status: 404 });
   const key = (await params).key.map(decodeURIComponent).join("/");
   const url = new URL(request.url);
   const exp = Number(url.searchParams.get("exp"));

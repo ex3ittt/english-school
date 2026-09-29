@@ -1,0 +1,13 @@
+# Локальные настройки и данные не должны попадать на Vercel.
+.env
+.env.*
+!.env.example
+.pglite
+storage
+.demo-accounts*.txt
+.share.log
+.share-url
+.claude
+.next
+node_modules
+src/generated

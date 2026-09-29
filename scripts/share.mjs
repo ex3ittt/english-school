@@ -5,6 +5,7 @@ import "dotenv/config";
 import { spawn } from "node:child_process";
 import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import { lookup } from "node:dns/promises";
+import https from "node:https";
 import net from "node:net";
 
 const PORT = 3100;
@@ -29,6 +30,11 @@ if (await portOpen(PORT)) {
   console.log(`\nСайт уже раздаётся${url ? `: ${url}` : ""} — второй раз запускать не нужно.`);
   console.log("Чтобы перезапустить: закройте первый запуск (Ctrl+C) или выполните  pkill -f share.mjs\n");
   process.exit(0);
+}
+
+// Не даём Mac уснуть, пока раздаём сайт: во сне туннель рвётся. Только на время работы команды.
+if (process.platform === "darwin") {
+  spawn("caffeinate", ["-ims", "-w", String(process.pid)], { stdio: "ignore", detached: true }).unref();
 }
 
 let db = null;
@@ -113,10 +119,39 @@ async function startTunnel() {
   });
 }
 
+// Проверяем ссылку через DNS Cloudflare (DNS-over-HTTPS): DNS раздачи с iPhone узнаёт новые адреса
+// с опозданием, и по нему живая ссылка выглядела бы мёртвой.
+async function resolvePublic(host) {
+  for (const server of ["https://1.1.1.1/dns-query", "https://8.8.8.8/resolve"]) {
+    try {
+      const res = await fetch(`${server}?name=${host}&type=A`, {
+        headers: { accept: "application/dns-json" },
+        signal: AbortSignal.timeout(8000),
+      });
+      const data = await res.json();
+      const ip = (data.Answer ?? []).find((a) => a.type === 1)?.data;
+      if (ip) return ip;
+    } catch {}
+  }
+  return null;
+}
+
 async function publicOk(url) {
   try {
-    const res = await fetch(`${url}/login`, { redirect: "manual", signal: AbortSignal.timeout(10_000) });
-    return res.status === 200;
+    const host = new URL(url).hostname;
+    const ip = await resolvePublic(host);
+    if (!ip) return false;
+    return await new Promise((resolve) => {
+      const req = https.get(
+        { host: ip, servername: host, headers: { host }, path: "/login", timeout: 10_000 },
+        (res) => {
+          res.resume();
+          resolve(res.statusCode === 200);
+        },
+      );
+      req.on("timeout", () => req.destroy());
+      req.on("error", () => resolve(false));
+    });
   } catch {
     return false;
   }

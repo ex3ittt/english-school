@@ -2,8 +2,8 @@ node_modules
 .next
 .env
 .env.local
-.pglite
-storage
+/.pglite
+/storage
 src/generated
 *.tsbuildinfo
 next-env.d.ts

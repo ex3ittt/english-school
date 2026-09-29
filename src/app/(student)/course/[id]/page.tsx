@@ -38,6 +38,12 @@ export default async function CourseHome({ params }: { params: Promise<{ id: str
                 Перейти к уроку <ArrowRightIcon size={16} />
               </Link>
             </>
+          ) : data.total === 0 ? (
+            <>
+              <span className={p.cardKicker}>Скоро старт</span>
+              <h2 className={p.nextTitle}>Уроки появятся здесь</h2>
+              <p className={p.muted}>Школа ещё готовит программу этого курса. Мы откроем первую неделю, как только она будет готова.</p>
+            </>
           ) : (
             <>
               <span className={p.cardKicker}>Все открытые уроки пройдены</span>

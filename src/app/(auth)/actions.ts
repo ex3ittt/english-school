@@ -7,10 +7,20 @@ import { hashPassword, validateNewPassword, verifyPassword } from "@/lib/auth/pa
 import { createSession, destroySession } from "@/lib/auth/session";
 import { hashToken, newToken } from "@/lib/auth/tokens";
 import { sendMail } from "@/lib/mail";
+import { clearAttempts, clientIp, isLimited, LIMITS, recordAttempt } from "@/lib/rate-limit";
 
 export type FormState = { error?: string; ok?: string; email?: string };
 
 const RESET_TTL_MS = 60 * 60 * 1000;
+const TOO_MANY = "Слишком много неудачных попыток входа. Подождите 15 минут или восстановите пароль.";
+
+// Хеш-пустышка: для несуществующего email тоже считаем scrypt, чтобы по скорости ответа
+// нельзя было понять, есть ли такой адрес в школе.
+let dummyHash: Promise<string> | null = null;
+function getDummyHash() {
+  dummyHash ??= hashPassword("dummy-password-for-timing");
+  return dummyHash;
+}
 
 function readEmail(formData: FormData) {
   return String(formData.get("email") ?? "").trim().toLowerCase();
@@ -22,17 +32,31 @@ async function authenticate(formData: FormData): Promise<{ error: string } | { u
   if (!email || !password) return { error: "Введите email и пароль." };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Похоже, в email опечатка." };
 
+  const emailKey = `login:email:${email}`;
+  const ipKey = `login:ip:${await clientIp()}`;
+
   let user;
   try {
+    if ((await isLimited(emailKey, LIMITS.loginEmail)) || (await isLimited(ipKey, LIMITS.loginIp))) {
+      return { error: TOO_MANY };
+    }
     user = await db.user.findUnique({ where: { email } });
   } catch (error) {
     console.error("[login] база недоступна:", error);
     return { error: "Сервис временно недоступен. Попробуйте войти через пару минут." };
   }
-  // Одинаковое сообщение для «нет такого email» и «неверный пароль».
-  const valid = user ? await verifyPassword(password, user.passwordHash) : false;
-  if (!user || !valid) return { error: "Неверный email или пароль." };
+
+  // Одинаковое сообщение и одинаковое время для «нет такого email» и «неверный пароль».
+  const valid = await verifyPassword(password, user?.passwordHash ?? (await getDummyHash()));
+  if (!user || !valid) {
+    await recordAttempt(emailKey, ipKey);
+    return { error: "Неверный email или пароль." };
+  }
   if (user.isBlocked) return { error: "Доступ к кабинету приостановлен. Напишите куратору или в поддержку школы." };
+
+  await clearAttempts(emailKey);
+  // Заодно убираем просроченные сессии этого пользователя.
+  await db.session.deleteMany({ where: { userId: user.id, expiresAt: { lt: new Date() } } });
   return { userId: user.id, role: user.role };
 }
 
@@ -63,7 +87,12 @@ export async function forgotPasswordAction(_: FormState, formData: FormData): Pr
   const email = readEmail(formData);
   if (!email) return { error: "Введите email, на который зарегистрирован кабинет." };
 
-  const user = await db.user.findUnique({ where: { email } });
+  const emailKey = `reset:email:${email}`;
+  const ipKey = `reset:ip:${await clientIp()}`;
+  const limited = (await isLimited(emailKey, LIMITS.resetEmail)) || (await isLimited(ipKey, LIMITS.resetIp));
+  await recordAttempt(emailKey, ipKey);
+
+  const user = limited ? null : await db.user.findUnique({ where: { email } });
   if (user && !user.isBlocked) {
     const token = newToken();
     await db.passwordResetToken.create({
@@ -94,11 +123,15 @@ export async function resetPasswordAction(_: FormState, formData: FormData): Pro
     return { error: "Ссылка устарела или уже использована. Запросите восстановление ещё раз." };
   }
 
+  const owner = await db.user.findUniqueOrThrow({ where: { id: record.userId }, select: { email: true } });
   await db.$transaction([
     db.user.update({ where: { id: record.userId }, data: { passwordHash: await hashPassword(password) } }),
-    db.passwordResetToken.update({ where: { id: record.id }, data: { usedAt: new Date() } }),
+    // Гасим и эту, и все остальные неиспользованные ссылки сброса.
+    db.passwordResetToken.updateMany({ where: { userId: record.userId, usedAt: null }, data: { usedAt: new Date() } }),
     // Выходим на всех устройствах: старый пароль мог быть скомпрометирован.
     db.session.deleteMany({ where: { userId: record.userId } }),
+    // Новый пароль снимает блокировку за неудачные попытки.
+    db.authAttempt.deleteMany({ where: { key: `login:email:${owner.email}` } }),
   ]);
   return { ok: "Пароль обновлён. Теперь можно войти с новым паролем." };
 }

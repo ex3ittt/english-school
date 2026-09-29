@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { assertAdmin } from "@/lib/auth/guards";
 import { generateTempPassword, hashPassword, validateNewPassword } from "@/lib/auth/password";
 import { hashToken, newToken } from "@/lib/auth/tokens";
@@ -84,9 +85,11 @@ export async function setBlockedAction(userId: string, blocked: boolean) {
 export async function resetPasswordAction(userId: string, _: StudentState): Promise<StudentState> {
   await assertAdmin();
   const password = generateTempPassword();
+  const user = await db.user.findUniqueOrThrow({ where: { id: userId }, select: { email: true } });
   await db.$transaction([
     db.user.update({ where: { id: userId }, data: { passwordHash: await hashPassword(password) } }),
     db.session.deleteMany({ where: { userId } }),
+    db.authAttempt.deleteMany({ where: { key: `login:email:${user.email}` } }),
   ]);
   return { ok: "Новый пароль создан. Передайте его ученику — он показан один раз.", password };
 }
@@ -157,4 +160,19 @@ export async function setWeekAccessAction(enrollmentId: string, weekId: string, 
   }
   const e = await db.enrollment.findUnique({ where: { id: enrollmentId }, select: { userId: true } });
   if (e) revalidatePath(`/admin/students/${e.userId}`);
+}
+
+/** Удаляет ученика вместе с записями на курсы и прогрессом. Себя удалить нельзя. */
+export async function deleteStudentAction(userId: string) {
+  const admin = await assertAdmin();
+  if (admin.id === userId) throw new Error("Нельзя удалить самого себя");
+  const user = await db.user.findUnique({ where: { id: userId }, select: { email: true } });
+  if (!user) redirect("/admin/students");
+  await db.$transaction([
+    db.authAttempt.deleteMany({ where: { key: `login:email:${user.email}` } }),
+    db.user.delete({ where: { id: userId } }),
+  ]);
+  revalidatePath("/admin/students");
+  revalidatePath("/admin");
+  redirect("/admin/students");
 }

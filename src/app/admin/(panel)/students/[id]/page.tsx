@@ -9,7 +9,7 @@ import { dateTime, relativeDays } from "@/lib/admin-format";
 import { requireAdmin } from "@/lib/auth/guards";
 import { db } from "@/lib/db";
 import { DAY_SHORT, formatDate } from "@/lib/student";
-import { enrollAction, setBlockedAction, unenrollAction } from "../actions";
+import { deleteStudentAction, enrollAction, setBlockedAction, unenrollAction } from "../actions";
 import { EnrollmentForm, PasswordTools, ProfileForm, WeekAccessSelect } from "./StudentForms";
 
 export const metadata: Metadata = { title: "Ученик" };
@@ -234,6 +234,22 @@ export default async function StudentPage({ params }: { params: Promise<{ id: st
               </table>
             )}
           </section>
+
+          {isSelf ? null : (
+            <section className={`paper ${s.panel}`}>
+              <h2 className={s.panelTitle} style={{ marginBottom: 6 }}>
+                Удаление
+              </h2>
+              <p className={s.muted} style={{ marginBottom: 14 }}>
+                Удалятся аккаунт, записи на курсы и весь прогресс. Если нужно просто закрыть доступ — заблокируйте.
+              </p>
+              <form action={deleteStudentAction.bind(null, user.id)}>
+                <ConfirmSubmit message={`Удалить ${user.name} навсегда? Прогресс восстановить будет нельзя.`}>
+                  Удалить ученика
+                </ConfirmSubmit>
+              </form>
+            </section>
+          )}
         </div>
       </div>
     </>

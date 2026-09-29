@@ -12,8 +12,9 @@ export const env = {
   },
   get appSecret() {
     const secret = required("APP_SECRET");
-    if (process.env.NODE_ENV === "production" && secret.length < 32) {
-      throw new Error("APP_SECRET должен быть длиннее 32 символов");
+    if (process.env.NODE_ENV === "production" && (secret.length < 32 || secret.startsWith("change-me"))) {
+      // Значение из .env.example публично: с ним можно подделать подписанные ссылки на файлы.
+      throw new Error("Задайте свой APP_SECRET (openssl rand -base64 48), а не значение из .env.example");
     }
     return secret;
   },

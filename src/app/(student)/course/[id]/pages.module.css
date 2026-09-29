@@ -334,6 +334,16 @@ a.dayActive:hover {
   max-width: 68ch;
   color: var(--ink);
   line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.blockText a {
+  color: var(--red);
+  text-underline-offset: 3px;
+}
+
+.blockText a:hover {
+  color: var(--red-hover);
 }
 
 .file {

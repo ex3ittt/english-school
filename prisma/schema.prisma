@@ -249,3 +249,15 @@ model Progress {
   @@index([lessonId])
   @@map("progress")
 }
+
+/// Неудачные попытки входа и запросы сброса пароля — для ограничения перебора.
+model AuthAttempt {
+  id        String   @id @default(cuid())
+  /// Например «login:email:anna@…» или «login:ip:1.2.3.4».
+  key       String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([key, createdAt])
+  @@index([createdAt])
+  @@map("auth_attempts")
+}

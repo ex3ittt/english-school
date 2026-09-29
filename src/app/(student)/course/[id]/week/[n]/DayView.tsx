@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { DownloadIcon, FileIcon } from "@/components/icons";
+import { LinkifiedText } from "@/components/LinkifiedText";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { setPreferredTeacher } from "../../../actions";
 import p from "../../pages.module.css";
@@ -134,7 +135,11 @@ export function DayView({ courseId, dayLabel, teachers, preferredTeacherId, less
                 {block.type === "VIDEO" ? (
                   <VideoPlayer source={{ kind: "block", id: block.id }} title={block.title} />
                 ) : null}
-                {block.type === "TEXT" && block.text ? <div className={p.blockText}>{block.text}</div> : null}
+                {block.type === "TEXT" && block.text ? (
+                  <div className={p.blockText}>
+                    <LinkifiedText text={block.text} />
+                  </div>
+                ) : null}
                 {block.type === "FILE" ? (
                   <a className={p.file} href={`/api/media/file/${block.id}`} rel="nofollow">
                     <span className={p.fileIcon}>
